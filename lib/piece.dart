@@ -1,3 +1,4 @@
+import 'package:chess/utils.dart';
 import 'package:flutter/widgets.dart';
 
 import 'board.dart';
@@ -6,36 +7,7 @@ enum PieceType { PAWN, ROOK, KNIGHT, BISHOP, QUEEN, KING }
 
 enum PieceColor { WHITE, BLACK }
 
-PieceColor otherColor(PieceColor other) {
-  return other == PieceColor.WHITE ? PieceColor.BLACK : PieceColor.WHITE;
-}
-
-String colorAsString(PieceColor color) {
-  return color == PieceColor.WHITE ? 'White' : 'Black';
-}
-
 enum Direction { UP, DOWN }
-
-class Position {
-  final int x, y;
-
-  const Position({this.x, this.y});
-
-  @override
-  int get hashCode => x + 1 + 10 * (y + 1);
-
-  @override
-  bool operator ==(other) {
-    if (other == null) return false;
-    if (other is! Position) return false;
-    return x == other.x && y == other.y;
-  }
-
-  @override
-  String toString() {
-    return '(x: $x, y: $y)';
-  }
-}
 
 abstract class Piece {
   final int id;
@@ -61,6 +33,11 @@ abstract class Piece {
     if (other == null) return false;
     if (other is! Piece) return false;
     return id == other.id;
+  }
+
+  @override
+  String toString() {
+    return '${colorAsString(color)} $runtimeType';
   }
 
   String getLetter();
@@ -103,8 +80,6 @@ class Pawn extends Piece {
 
     // can move forward 1?
     var maybePosition = forwardOne.getPosition();
-    print(
-        'pawn: forward position value: ${board.getAtPosition(position: maybePosition)}');
     if (board.getAtPosition(position: maybePosition) == null) {
       potentialMoves.add(forwardOne.getPosition());
 

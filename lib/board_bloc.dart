@@ -1,4 +1,5 @@
 import 'package:chess/piece.dart';
+import 'package:chess/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -35,12 +36,12 @@ class BoardBloc {
     });
   }
 
+  /// A square can be selected if:
+  ///   1) there is no existing selection or
+  ///       the selection is a piece belonging to the current team (select)
+  ///   2) the existing selection is the same as the selectiong (unselect)
+  ///   3) the target is a valid target for the current selection (move/take)
   void selectSquare(Position position) {
-    /* A square can be selected if:
-        1) there is no existing selection and the selection is a piece belonging to the current team (select)
-        2) the existing selection is the same as the selectiong (unselect)
-        3) the target is a valid target for the current selection (move/take)
-     */
     var maybePiece = board.getAtPosition(x: position.x, y: position.y);
 
     // short circuit if there is no action to take (skip non-moves)
@@ -54,16 +55,16 @@ class BoardBloc {
       selectedPiece = null;
       gameEvent.add(SquareDeSelected(piece: maybePiece, position: position));
     } else if (board.availableMoves(selectedPiece).contains(position)) {
-      print('move piece');
       _movePiece(maybePiece, position);
       selectedPiece = null;
     }
   }
 
   void _movePiece(Piece piece, Position position) {
-    board.movePiece(selectedPiece, position);
     turn = otherColor(turn);
 
+    print(
+        'Move($piece, $position) from: ${board.getPiecePosition(selectedPiece)}');
     if (piece != null && piece.color != selectedPiece.color) {
       gameEvent.add(PieceTaken(
         to: position,
@@ -79,12 +80,14 @@ class BoardBloc {
       ));
     }
 
-    if (board.isKingInPeril(turn)) {
-      if (board.isCheckMate(turn)) {
-        gameEvent.add(Checkmate(loser: turn));
-      } else {
-        gameEvent.add(Check(colorInCheck: turn));
-      }
+    board.movePiece(selectedPiece, position);
+
+    if (board.isCheckMate(turn)) {
+      gameEvent.add(Checkmate(loser: turn));
+    } else if (board.isStaleMate(turn)) {
+      gameEvent.add(Stalemate());
+    } else if (board.isKingInPeril(turn)) {
+      gameEvent.add(Check(colorInCheck: turn));
     }
 
     if (selectedPiece is Pawn) {
@@ -109,11 +112,13 @@ class BoardBloc {
     events.removeRange(events.indexOf(move), events.length);
 
     // reverse the move
-    board.movePiece(move.pieceMoved, move.from);
+    board.setAtPosition(piece: move.pieceMoved, position: move.from);
 
     // reset taken piece
     if (move is PieceTaken) {
-      board.setAtPosition(piece: move.pieceTaken, x: move.to.x, y: move.to.y);
+      board.setAtPosition(piece: move.pieceTaken, position: move.to);
+    } else {
+      board.setAtPosition(piece: null, position: move.to);
     }
 
     if (move.pieceMoved is Pawn) {
@@ -122,14 +127,15 @@ class BoardBloc {
           (move.pieceMoved.direction == Direction.UP &&
               move.from.y == BOARD_HEIGHT - 2)) {
         (move.pieceMoved as Pawn).hasMoved = false;
-      } else if (move.to.y == 0 ||
-          move.to.y == BOARD_HEIGHT - 1 && move is! PieceTaken) {
-        // reset pawn if replaced and not square not overwritten by taken piece
-        board.setAtPosition(piece: null, x: move.to.x, y: move.to.y);
+//      } else if ((move.to.y == 0 || move.to.y == BOARD_HEIGHT - 1) &&
+//          move is! PieceTaken) {
+//        // reset pawn if replaced and square not overwritten by taken piece
+//        board.setAtPosition(piece: null, x: move.to.x, y: move.to.y);
       }
     }
 
-    turn = otherColor(turn);
+    selectedPiece = null;
+    turn = move.pieceMoved.color;
     gameEvent.add(Undo(move: move));
   }
 
@@ -251,5 +257,12 @@ class Checkmate extends GameEvent {
   @override
   String getDescription() {
     return "${colorAsString(loser)} is in Checkmate. ${colorAsString(otherColor(loser))} Wins!";
+  }
+}
+
+class Stalemate extends GameEvent {
+  @override
+  String getDescription() {
+    return "Stalemate! It's a draw!";
   }
 }
