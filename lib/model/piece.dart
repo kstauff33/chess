@@ -1,5 +1,5 @@
-import 'package:chess/utils.dart';
-import 'package:flutter/widgets.dart';
+import 'package:chess_server/model/utils.dart';
+import 'package:meta/meta.dart';
 
 import 'board.dart';
 
@@ -10,8 +10,7 @@ enum PieceColor { WHITE, BLACK }
 enum Direction { UP, DOWN }
 
 abstract class Piece {
-  final int id;
-
+  final String id;
   final PieceColor color;
   final Direction direction;
   final PieceType type;
@@ -26,11 +25,10 @@ abstract class Piece {
   List<Position> availableMoves(Board board);
 
   @override
-  int get hashCode => id;
+  int get hashCode => id.hashCode;
 
   @override
   bool operator ==(other) {
-    if (other == null) return false;
     if (other is! Piece) return false;
     return id == other.id;
   }
@@ -47,7 +45,7 @@ class Pawn extends Piece {
   var hasMoved = false;
 
   Pawn({
-    @required int id,
+    @required String id,
     @required Direction direction,
     @required PieceColor color,
   }) : super(
@@ -111,7 +109,7 @@ class Pawn extends Piece {
 
 class Rook extends Piece {
   Rook({
-    @required int id,
+    @required String id,
     @required Direction direction,
     @required PieceColor color,
   }) : super(id: id, direction: direction, type: PieceType.ROOK, color: color);
@@ -127,7 +125,7 @@ class Rook extends Piece {
 
 class Knight extends Piece {
   Knight({
-    @required int id,
+    @required String id,
     @required Direction direction,
     @required PieceColor color,
   }) : super(
@@ -136,47 +134,45 @@ class Knight extends Piece {
   @override
   List<Position> availableMoves(Board board) {
     var position = board.getPiecePosition(this);
-    BoardCursor upRight =
+    var upRight =
         BoardCursor(startPosition: position, board: board, piece: this)
           ..forward()
           ..forward()
           ..right();
-    BoardCursor upLeft =
-        BoardCursor(startPosition: position, board: board, piece: this)
-          ..forward()
-          ..forward()
-          ..left();
-    BoardCursor leftUp =
-        BoardCursor(startPosition: position, board: board, piece: this)
-          ..left()
-          ..left()
-          ..forward();
-    BoardCursor leftDown =
+    var upLeft = BoardCursor(startPosition: position, board: board, piece: this)
+      ..forward()
+      ..forward()
+      ..left();
+    var leftUp = BoardCursor(startPosition: position, board: board, piece: this)
+      ..left()
+      ..left()
+      ..forward();
+    var leftDown =
         BoardCursor(startPosition: position, board: board, piece: this)
           ..left()
           ..left()
           ..backward();
-    BoardCursor downRight =
+    var downRight =
         BoardCursor(startPosition: position, board: board, piece: this)
           ..backward()
           ..backward()
           ..right();
-    BoardCursor downLeft =
+    var downLeft =
         BoardCursor(startPosition: position, board: board, piece: this)
           ..backward()
           ..backward()
           ..left();
-    BoardCursor rightUp =
+    var rightUp =
         BoardCursor(startPosition: position, board: board, piece: this)
           ..right()
           ..right()
           ..forward();
-    BoardCursor rightDown =
+    var rightDown =
         BoardCursor(startPosition: position, board: board, piece: this)
           ..right()
           ..right()
           ..backward();
-    List<Position> potentialPositions = [];
+    var potentialPositions = <Position>[];
     if (upLeft.checkMoves()) potentialPositions.add(upLeft.getPosition());
     if (upRight.checkMoves()) potentialPositions.add(upRight.getPosition());
     if (leftUp.checkMoves()) potentialPositions.add(leftUp.getPosition());
@@ -194,7 +190,7 @@ class Knight extends Piece {
 
 class Bishop extends Piece {
   Bishop({
-    @required int id,
+    @required String id,
     @required Direction direction,
     @required PieceColor color,
   }) : super(
@@ -211,7 +207,7 @@ class Bishop extends Piece {
 
 class King extends Piece {
   King({
-    @required int id,
+    @required String id,
     @required Direction direction,
     @required PieceColor color,
   }) : super(id: id, direction: direction, type: PieceType.KING, color: color);
@@ -229,7 +225,7 @@ class King extends Piece {
 
 class Queen extends Piece {
   Queen({
-    @required int id,
+    @required String id,
     @required Direction direction,
     @required PieceColor color,
   }) : super(id: id, direction: direction, type: PieceType.QUEEN, color: color);
@@ -345,7 +341,7 @@ List<Position> _straightMoves(Piece piece, Board board, Position position,
 
 class PieceFactory {
   static int _counter = 0;
-  static PieceFactory _instance = PieceFactory._();
+  static final PieceFactory _instance = PieceFactory._();
 
   PieceFactory._();
 
@@ -389,17 +385,23 @@ class PieceFactory {
     var direction = color == PieceColor.WHITE ? whiteDirection : blackDirection;
     switch (pieceType) {
       case Pawn:
-        return Pawn(id: _counter++, color: color, direction: direction);
+        return Pawn(
+            id: (_counter++).toString(), color: color, direction: direction);
       case Rook:
-        return Rook(id: _counter++, color: color, direction: direction);
+        return Rook(
+            id: (_counter++).toString(), color: color, direction: direction);
       case Knight:
-        return Knight(id: _counter++, color: color, direction: direction);
+        return Knight(
+            id: (_counter++).toString(), color: color, direction: direction);
       case Bishop:
-        return Bishop(id: _counter++, color: color, direction: direction);
+        return Bishop(
+            id: (_counter++).toString(), color: color, direction: direction);
       case King:
-        return King(id: _counter++, color: color, direction: direction);
+        return King(
+            id: (_counter++).toString(), color: color, direction: direction);
       case Queen:
-        return Queen(id: _counter++, color: color, direction: direction);
+        return Queen(
+            id: (_counter++).toString(), color: color, direction: direction);
     }
     throw Exception('Type not rcognized');
   }

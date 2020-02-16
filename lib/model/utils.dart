@@ -1,9 +1,4 @@
-import 'package:chess/model/piece.dart';
-import 'package:flutter/material.dart';
-
-Widget pieceText(String text, {Color color = Colors.black}) {
-  return Text(text, style: TextStyle(fontSize: 32, color: color));
-}
+import 'package:chess_server/model/piece.dart';
 
 PieceColor otherColor(PieceColor other) {
   return other == PieceColor.WHITE ? PieceColor.BLACK : PieceColor.WHITE;

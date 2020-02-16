@@ -1,7 +1,7 @@
-import 'package:chess/piece.dart';
+import 'package:chess/model/piece.dart';
 import 'package:flutter/material.dart';
 
-import 'board_bloc.dart';
+import '../bloc/board_bloc.dart';
 
 class PawnReplacementSelector extends StatelessWidget {
   final Pawn pawn;

@@ -1,11 +1,12 @@
 import 'dart:math';
 
+import 'package:chess/model/events.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'board.dart';
-import 'board_bloc.dart';
-import 'game_widget.dart';
+import 'model/board.dart';
+import 'bloc/board_bloc.dart';
+import 'widgets/game_widget.dart';
 
 /*
 TODOs: 

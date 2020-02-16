@@ -1,9 +1,11 @@
-import 'package:chess/piece.dart';
+import 'package:chess/model/events.dart';
+import 'package:chess/model/piece.dart';
 import 'package:chess/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 
-import 'board.dart';
+import '../model/board.dart';
 
 class BoardProvider extends InheritedWidget {
   final BoardBloc boardBloc;
@@ -16,25 +18,18 @@ class BoardProvider extends InheritedWidget {
   }
 
   static BoardBloc of(BuildContext context) =>
-      (context.ancestorWidgetOfExactType(BoardProvider) as BoardProvider)
-          .boardBloc;
+      context.findAncestorWidgetOfExactType<BoardProvider>().boardBloc;
 }
 
 class BoardBloc {
   final double squareSize;
-  final Board board;
-  final List<GameEvent> events = [];
-
+  final Game game;
   Piece selectedPiece;
-  PieceColor turn = PieceColor.WHITE;
 
-  BehaviorSubject<GameEvent> gameEvent = BehaviorSubject<GameEvent>();
-
-  BoardBloc({@required this.squareSize}) : board = Board() {
-    gameEvent.listen((event) {
-      events.add(event);
-    });
-  }
+  BoardBloc({
+    @required this.squareSize,
+    @required this.game,
+  });
 
   /// A square can be selected if:
   ///   1) there is no existing selection or
@@ -42,29 +37,46 @@ class BoardBloc {
   ///   2) the existing selection is the same as the selectiong (unselect)
   ///   3) the target is a valid target for the current selection (move/take)
   void selectSquare(Position position) {
-    var maybePiece = board.getAtPosition(x: position.x, y: position.y);
+    var maybePiece = game.board.getAtPosition(x: position.x, y: position.y);
 
     // short circuit if there is no action to take (skip non-moves)
-    if ((maybePiece == null || maybePiece.color != turn) &&
+    if ((maybePiece == null || maybePiece.color != game.turn) &&
         selectedPiece == null) return;
 
     if (selectedPiece == null || selectedPiece.color == maybePiece?.color) {
       selectedPiece = maybePiece;
-      gameEvent.add(SquareSelected(piece: maybePiece, position: position));
+      game.gameEvent.add(SquareSelected(piece: maybePiece, position: position));
     } else if (selectedPiece == maybePiece) {
       selectedPiece = null;
-      gameEvent.add(SquareDeSelected(piece: maybePiece, position: position));
-    } else if (board.availableMoves(selectedPiece).contains(position)) {
-      _movePiece(maybePiece, position);
+      game.gameEvent
+          .add(SquareDeSelected(piece: maybePiece, position: position));
+    } else if (game.board.availableMoves(selectedPiece).contains(position)) {
+      game.movePiece(maybePiece, position);
       selectedPiece = null;
     }
   }
+}
 
-  void _movePiece(Piece piece, Position position) {
+class Game {
+  final Board board;
+  final List<GameEvent> events = [];
+
+  PieceColor turn = PieceColor.WHITE;
+
+  BehaviorSubject<GameEvent> gameEvent = BehaviorSubject<GameEvent>();
+
+  Game() : board = Board() {
+    gameEvent.listen((event) {
+      events.add(event);
+    });
+  }
+
+  void movePiece(Piece piece, Position position) {
     turn = otherColor(turn);
 
     print(
         'Move($piece, $position) from: ${board.getPiecePosition(selectedPiece)}');
+
     if (piece != null && piece.color != selectedPiece.color) {
       gameEvent.add(PieceTaken(
         to: position,
@@ -127,10 +139,6 @@ class BoardBloc {
           (move.pieceMoved.direction == Direction.UP &&
               move.from.y == BOARD_HEIGHT - 2)) {
         (move.pieceMoved as Pawn).hasMoved = false;
-//      } else if ((move.to.y == 0 || move.to.y == BOARD_HEIGHT - 1) &&
-//          move is! PieceTaken) {
-//        // reset pawn if replaced and square not overwritten by taken piece
-//        board.setAtPosition(piece: null, x: move.to.x, y: move.to.y);
       }
     }
 
@@ -141,128 +149,5 @@ class BoardBloc {
 
   void dispose() {
     gameEvent.close();
-  }
-}
-
-abstract class GameEvent {
-  String getDescription();
-}
-
-class SquareSelected extends GameEvent {
-  final Position position;
-  final Piece piece;
-
-  SquareSelected({this.position, this.piece});
-
-  @override
-  String getDescription() {
-    return 'Position: $position selected';
-  }
-}
-
-class SquareDeSelected extends SquareSelected {
-  SquareDeSelected({
-    @required Position position,
-    @required Piece piece,
-  }) : super(position: position, piece: piece);
-
-  @override
-  String getDescription() {
-    return 'Position: $position deselected';
-  }
-}
-
-class Move extends GameEvent {
-  final Piece pieceMoved;
-  final Position from;
-  final Position to;
-
-  Move({
-    @required this.pieceMoved,
-    @required this.from,
-    @required this.to,
-  });
-
-  @override
-  String getDescription() {
-    return 'Moved piece: $pieceMoved from $from to $to';
-  }
-}
-
-class PieceTaken extends Move {
-  final Piece pieceTaken;
-
-  PieceTaken({
-    @required to,
-    @required from,
-    @required pieceMoved,
-    @required this.pieceTaken,
-  }) : super(pieceMoved: pieceMoved, from: from, to: to);
-
-  @override
-  String getDescription() {
-    return super.getDescription() + ', taking $pieceTaken';
-  }
-}
-
-class PawnReachedEnd extends GameEvent {
-  final Pawn piece;
-
-  PawnReachedEnd({@required this.piece});
-
-  @override
-  String getDescription() {
-    return '${colorAsString(piece.color)} pawn reached the end';
-  }
-}
-
-class Undo extends GameEvent {
-  final Move move;
-
-  Undo({@required this.move});
-
-  @override
-  String getDescription() {
-    return 'Move undone';
-  }
-}
-
-class ReplacementSelected extends GameEvent {
-  final Type selectedType;
-
-  ReplacementSelected({@required this.selectedType});
-
-  @override
-  String getDescription() {
-    return 'Chose $selectedType as replacement';
-  }
-}
-
-class Check extends GameEvent {
-  final PieceColor colorInCheck;
-
-  Check({@required this.colorInCheck});
-
-  @override
-  String getDescription() {
-    return "${colorAsString(colorInCheck)}'s King is in check";
-  }
-}
-
-class Checkmate extends GameEvent {
-  final PieceColor loser;
-
-  Checkmate({@required this.loser});
-
-  @override
-  String getDescription() {
-    return "${colorAsString(loser)} is in Checkmate. ${colorAsString(otherColor(loser))} Wins!";
-  }
-}
-
-class Stalemate extends GameEvent {
-  @override
-  String getDescription() {
-    return "Stalemate! It's a draw!";
   }
 }

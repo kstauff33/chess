@@ -1,5 +1,5 @@
-import 'package:chess/board.dart';
-import 'package:chess/piece.dart';
+import 'package:chess/model/board.dart';
+import 'package:chess/model/piece.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

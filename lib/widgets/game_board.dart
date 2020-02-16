@@ -1,8 +1,9 @@
-import 'package:chess/board_bloc.dart';
-import 'package:chess/piece.dart';
+import 'package:chess/bloc/board_bloc.dart';
+import 'package:chess/model/events.dart';
+import 'package:chess/model/piece.dart';
 import 'package:flutter/material.dart';
 
-import 'board.dart';
+import '../model/board.dart';
 
 class BoardWidget extends StatelessWidget {
   @override

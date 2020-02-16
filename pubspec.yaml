@@ -13,6 +13,7 @@ dependencies:
   cupertino_icons: ^0.1.2
   rxdart: any
   shared_preferences: any
+  meta: any
 
 dev_dependencies:
   flutter_test:

@@ -1,6 +1,6 @@
-import 'package:chess/piece.dart';
-import 'package:chess/utils.dart';
-import 'package:flutter/material.dart';
+import 'package:chess_server/model/piece.dart';
+import 'package:chess_server/model/utils.dart';
+import 'package:meta/meta.dart';
 
 const BOARD_WIDTH = 8;
 
@@ -9,14 +9,13 @@ const BOARD_HEIGHT = 8;
 class Position {
   final int x, y;
 
-  const Position({this.x, this.y});
+  const Position({@required this.x, this.y});
 
   @override
   int get hashCode => x + 1 + 10 * (y + 1);
 
   @override
   bool operator ==(other) {
-    if (other == null) return false;
     if (other is! Position) return false;
     return x == other.x && y == other.y;
   }
@@ -117,14 +116,26 @@ class Board {
   }
 
   Position getPiecePosition(Piece piece) {
-    for (int x = 0; x < BOARD_WIDTH; x++) {
-      for (int y = 0; y < BOARD_HEIGHT; y++) {
+    for (var x = 0; x < BOARD_WIDTH; x++) {
+      for (var y = 0; y < BOARD_HEIGHT; y++) {
         if (piece == getAtPosition(x: x, y: y)) {
           return Position(x: x, y: y);
         }
       }
     }
-    throw Exception("Piece should be on board");
+    throw Exception('Piece should be on board');
+  }
+
+  Piece findPieceById(String id) {
+    for (var x = 0; x < BOARD_WIDTH; x++) {
+      for (var y = 0; y < BOARD_HEIGHT; y++) {
+        var maybePiece = getAtPosition(x: x, y: y);
+        if (maybePiece != null && maybePiece.id == id) {
+          return maybePiece;
+        }
+      }
+    }
+    throw Exception('Piece should be on board');
   }
 
   /// Find all potential destination positions for a given piece
@@ -149,13 +160,13 @@ class Board {
   /// @param color could take it)
   bool isKingInPeril(PieceColor color) {
     if (!cache.kingInPerilDirty) return cache.kingInPeril;
-    List<Piece> otherPieces = teamPieces(otherColor(color));
-    List<Piece> thisPieces = teamPieces(color);
-    Piece thisKing = thisPieces.firstWhere((piece) => piece is King);
-    Position thisKingPosition = getPiecePosition(thisKing);
+    var otherPieces = teamPieces(otherColor(color));
+    var thisPieces = teamPieces(color);
+    var thisKing = thisPieces.firstWhere((piece) => piece is King);
+    var thisKingPosition = getPiecePosition(thisKing);
 
-    bool kingInPeril = false;
-    for (Piece piece in otherPieces) {
+    var kingInPeril = false;
+    for (var piece in otherPieces) {
       if (piece.availableMoves(this).contains(thisKingPosition)) {
         kingInPeril = true;
         break;
@@ -170,9 +181,9 @@ class Board {
     if (!cache.teamPiecesDirty && cache.teamPieces.containsKey(color)) {
       return cache.teamPieces[color];
     }
-    List<Piece> pieces = [];
-    for (int x = 0; x < BOARD_HEIGHT; x++) {
-      for (int y = 0; y < BOARD_WIDTH; y++) {
+    var pieces = [];
+    for (var x = 0; x < BOARD_HEIGHT; x++) {
+      for (var y = 0; y < BOARD_WIDTH; y++) {
         var maybePiece = getAtPosition(x: x, y: y);
         if (maybePiece != null && maybePiece.color == color) {
           pieces.add(maybePiece);
@@ -198,8 +209,8 @@ class Board {
     if (!cache.availableMovesDirty) return cache.movesAvailable;
     var pieces = teamPieces(color);
     var available = false;
-    for (Piece piece in pieces) {
-      if (availableMoves(piece).length > 0) {
+    for (var piece in pieces) {
+      if (availableMoves(piece).isNotEmpty) {
         available = true;
         break;
       }
@@ -233,11 +244,11 @@ class BoardCursor {
   bool isActive = true;
 
   BoardCursor({
-    @required this.startPosition,
-    @required this.board,
-    @required this.piece,
-  })  : this.x = startPosition.x,
-        this.y = startPosition.y;
+    this.startPosition,
+    this.board,
+    this.piece,
+  })  : x = startPosition.x,
+        y = startPosition.y;
 
   // up/down based on visual not impl
   void forward() => piece.direction == Direction.UP ? y-- : y++;
