@@ -54,7 +54,7 @@ class PawnReplacementSelector extends StatelessWidget {
   }
 
   void _close(Type replacementType, context) {
-    bloc.replacePawn(pawn, replacementType);
+    bloc.game.replacePawn(pawn, replacementType);
     Navigator.of(context).pop();
   }
 }

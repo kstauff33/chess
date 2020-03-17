@@ -1,4 +1,4 @@
-import 'package:chess_server/model/piece.dart';
+import 'piece.dart';
 
 PieceColor otherColor(PieceColor other) {
   return other == PieceColor.WHITE ? PieceColor.BLACK : PieceColor.WHITE;
@@ -7,3 +7,4 @@ PieceColor otherColor(PieceColor other) {
 String colorAsString(PieceColor color) {
   return color == PieceColor.WHITE ? 'White' : 'Black';
 }
+

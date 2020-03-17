@@ -1,7 +1,8 @@
 import 'package:chess/model/events.dart';
-import 'package:chess/widgets/pawn_replacement_selector.dart';
-import 'package:chess/utils.dart';
+import 'package:chess/model/utils.dart';
 import 'package:chess/widgets/event_stream.dart';
+import 'package:chess/widgets/pawn_replacement_selector.dart';
+import 'package:chess/widgets/widget_utils.dart';
 import 'package:flutter/material.dart';
 
 import '../bloc/board_bloc.dart';
@@ -12,7 +13,7 @@ class GameWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     var bloc = BoardProvider.of(context);
 
-    bloc.gameEvent.where((event) => event is PawnReachedEnd).listen((event) {
+    bloc.events.where((event) => event is PawnReachedEnd).listen((event) {
       showModalBottomSheet(
         context: context,
         builder: (context) {
@@ -24,18 +25,46 @@ class GameWidget extends StatelessWidget {
       );
     });
 
+    var deviceSize = MediaQuery.of(context).size;
+    var width = deviceSize.width;
+    var height = deviceSize.height - 150;
+
     return StreamBuilder(
-      stream: bloc.gameEvent,
+      stream: bloc.events,
       builder: (context, snapshot) {
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.all(16.0),
-              child: pieceText(getTitle(bloc, snapshot.data),
-                  color: Colors.grey.shade700),
+        final moveTitle = Padding(
+          padding: EdgeInsets.all(16.0),
+          child: titleText(getTitle(bloc, snapshot.data)),
+        );
+
+        if (height > width) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              moveTitle,
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[BoardWidget()],
+              ),
+              EventStream(),
+            ],
+          );
+        }
+
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Expanded(
+              flex: 2,
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                children: <Widget>[
+                  moveTitle,
+                  BoardWidget(),
+                ],
+              ),
             ),
-            BoardWidget(),
             EventStream(),
           ],
         );
@@ -50,6 +79,6 @@ class GameWidget extends StatelessWidget {
     if (event is Stalemate) {
       return 'Stalemate! Game Over!';
     }
-    return "${colorAsString(bloc.turn)}'s Turn";
+    return "${colorAsString(bloc.game.turn)}'s Turn";
   }
 }

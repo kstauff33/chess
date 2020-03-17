@@ -1,6 +1,7 @@
-import 'package:chess_server/model/piece.dart';
-import 'package:chess_server/model/utils.dart';
 import 'package:meta/meta.dart';
+
+import 'piece.dart';
+import 'utils.dart';
 
 const BOARD_WIDTH = 8;
 
@@ -73,7 +74,20 @@ class Board {
     _board = PieceFactory().generateBoard();
   }
 
-  Board.empty();
+  @override
+  String toString() {
+    return _board.map((row) {
+      return row.map((piece) => piece?.getLetter() ?? ' ').join(', ');
+    }).join('\n');
+  }
+
+  Board.empty() {
+    _board = List.generate(BOARD_HEIGHT, (int y) {
+      return List.generate(BOARD_WIDTH, (int x) {
+        return null;
+      });
+    });
+  }
 
   factory Board.fromBoard(Board other) {
     var board = Board.empty();
@@ -85,6 +99,7 @@ class Board {
     return board;
   }
 
+  /// Get the piece at the provided location
   Piece getAtPosition({int x, int y, Position position}) {
     assert((x == null && y == null) || position == null);
     if (position != null) {
@@ -99,6 +114,7 @@ class Board {
     return null;
   }
 
+  /// Place a piece at the provided location
   void setAtPosition({Piece piece, int x, int y, Position position}) {
     cache.invalidate();
     assert((x == null && y == null) || position == null);
@@ -109,12 +125,14 @@ class Board {
     }
   }
 
+  /// Place the piece at the provided position and clear the previous placement
   void movePiece(Piece piece, Position toPosition) {
     var position = getPiecePosition(piece);
     setAtPosition(piece: null, x: position.x, y: position.y);
     setAtPosition(piece: piece, x: toPosition.x, y: toPosition.y);
   }
 
+  /// Given a piece, find it's position on the board
   Position getPiecePosition(Piece piece) {
     for (var x = 0; x < BOARD_WIDTH; x++) {
       for (var y = 0; y < BOARD_HEIGHT; y++) {
@@ -126,7 +144,9 @@ class Board {
     throw Exception('Piece should be on board');
   }
 
+  /// Get a reference to a given piece based on the supplied id
   Piece findPieceById(String id) {
+    print('find piece by id');
     for (var x = 0; x < BOARD_WIDTH; x++) {
       for (var y = 0; y < BOARD_HEIGHT; y++) {
         var maybePiece = getAtPosition(x: x, y: y);
@@ -181,7 +201,7 @@ class Board {
     if (!cache.teamPiecesDirty && cache.teamPieces.containsKey(color)) {
       return cache.teamPieces[color];
     }
-    var pieces = [];
+    var pieces = <Piece>[];
     for (var x = 0; x < BOARD_HEIGHT; x++) {
       for (var y = 0; y < BOARD_WIDTH; y++) {
         var maybePiece = getAtPosition(x: x, y: y);

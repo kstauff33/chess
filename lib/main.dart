@@ -1,11 +1,14 @@
 import 'dart:math';
 
+import 'package:chess/bloc/preference_bloc.dart';
 import 'package:chess/model/events.dart';
+import 'package:chess/widgets/setting_button.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'model/board.dart';
 import 'bloc/board_bloc.dart';
+import 'model/board.dart';
+import 'model/game.dart';
 import 'widgets/game_widget.dart';
 
 /*
@@ -20,6 +23,7 @@ TODOs:
  */
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   SharedPreferences.getInstance().then((preferences) {
     runApp(ChessApp(preferences: preferences));
   });
@@ -32,89 +36,82 @@ class ChessApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Chess',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    return PreferencesProvider(
+      sp: preferences,
+      child: MaterialApp(
+        title: 'Chess',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: HomeWidget(),
       ),
-      home: HomeWidget(preferences: preferences),
     );
   }
 }
 
-class HomeWidget extends StatefulWidget {
-  final SharedPreferences preferences;
+class HomeWidget extends StatelessWidget {
+  final Game game;
 
-  const HomeWidget({Key key, this.preferences}) : super(key: key);
-
-  @override
-  _HomeWidgetState createState() => _HomeWidgetState();
-}
-
-class _HomeWidgetState extends State<HomeWidget> {
-  BoardBloc bloc;
+  HomeWidget({Key key})
+      : game = LocalGame(),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
     var deviceSize = MediaQuery.of(context).size;
     var width = deviceSize.width;
-    var height = deviceSize.height;
+    var height = deviceSize.height - 150;
     var squareSize = min(width / BOARD_WIDTH, height / BOARD_HEIGHT);
+    var bloc = BoardBloc(squareSize: squareSize, game: game);
 
-    bloc = BoardBloc(squareSize: squareSize);
     return BoardProvider(
       boardBloc: bloc,
       child: Scaffold(
-        body: GameWidget(),
         appBar: AppBar(
           title: Text('Chess'),
           automaticallyImplyLeading: false,
           actions: <Widget>[
-            StreamBuilder(
-              stream: bloc.gameEvent,
-              builder: (context, snapshot) {
-                var moves =
-                    bloc.events.where((event) => event is Move).toList();
-                if (moves != null && moves.length > 0) {
-                  return IconButton(
-                    icon: Icon(Icons.arrow_back),
-                    onPressed: () => bloc.undo(),
-                  );
-                }
-                return Container();
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.refresh),
-              onPressed: () {
-                setState(() {
-                  // rebuild widget => new game
-                });
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.settings),
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  builder: (context) {
-                    return ListView(
-                      children: <Widget>[
-                        SwitchListTile(
-                            value: widget.preferences.getBool('Show moves'),
-                            onChanged: (value) {
-                              widget.preferences.setBool('Show moves', value);
-                            })
-                      ],
-                    );
-                  },
-                );
-              },
-            ),
+            UndoButton(),
+            NewGameButton(),
+            SettingsButton(),
           ],
         ),
+        body: GameWidget(),
       ),
+    );
+  }
+}
+
+class NewGameButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    var bloc = BoardProvider.of(context);
+    return IconButton(
+      icon: Icon(Icons.refresh),
+      onPressed: () {
+        bloc.newGame(LocalGame());
+      },
+    );
+  }
+}
+
+class UndoButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    var bloc = BoardProvider.of(context);
+    return StreamBuilder(
+      stream: bloc.events,
+      builder: (context, snapshot) {
+        var moves = bloc.game.events.where((event) => event is Move).toList();
+        if (moves != null && moves.length > 0) {
+          return IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () => bloc.game.undo(),
+          );
+        }
+        return Container();
+      },
     );
   }
 }

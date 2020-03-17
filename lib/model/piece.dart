@@ -1,7 +1,7 @@
-import 'package:chess_server/model/utils.dart';
 import 'package:meta/meta.dart';
 
 import 'board.dart';
+import 'utils.dart';
 
 enum PieceType { PAWN, ROOK, KNIGHT, BISHOP, QUEEN, KING }
 
@@ -381,27 +381,22 @@ class PieceFactory {
   Direction whiteDirection = Direction.UP;
   Direction blackDirection = Direction.DOWN;
 
-  Piece pieceOfColor(Type pieceType, PieceColor color) {
+  Piece pieceOfColor(Type pieceType, PieceColor color, {String id}) {
     var direction = color == PieceColor.WHITE ? whiteDirection : blackDirection;
+    var pieceId = id ?? (_counter++).toString();
     switch (pieceType) {
       case Pawn:
-        return Pawn(
-            id: (_counter++).toString(), color: color, direction: direction);
+        return Pawn(id: pieceId, color: color, direction: direction);
       case Rook:
-        return Rook(
-            id: (_counter++).toString(), color: color, direction: direction);
+        return Rook(id: pieceId, color: color, direction: direction);
       case Knight:
-        return Knight(
-            id: (_counter++).toString(), color: color, direction: direction);
+        return Knight(id: pieceId, color: color, direction: direction);
       case Bishop:
-        return Bishop(
-            id: (_counter++).toString(), color: color, direction: direction);
+        return Bishop(id: pieceId, color: color, direction: direction);
       case King:
-        return King(
-            id: (_counter++).toString(), color: color, direction: direction);
+        return King(id: pieceId, color: color, direction: direction);
       case Queen:
-        return Queen(
-            id: (_counter++).toString(), color: color, direction: direction);
+        return Queen(id: pieceId, color: color, direction: direction);
     }
     throw Exception('Type not rcognized');
   }

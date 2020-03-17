@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:chess/bloc/board_bloc.dart';
+import 'package:chess/bloc/preference_bloc.dart';
 import 'package:chess/model/events.dart';
 import 'package:chess/model/piece.dart';
 import 'package:flutter/material.dart';
@@ -8,25 +11,31 @@ import '../model/board.dart';
 class BoardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var bloc = BoardProvider.of(context);
-    var availableMoves = bloc.board.availableMoves(bloc.selectedPiece);
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(BOARD_WIDTH, (int y) {
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(BOARD_HEIGHT, (int x) {
-            var piece = bloc.board.getAtPosition(x: x, y: y);
-            var position = Position(x: x, y: y);
-            return Square(
-              piece: piece,
-              isSelected: bloc.selectedPiece == piece && piece != null,
-              isAvailable: availableMoves.contains(position),
-              position: position,
-            );
-          }),
-        );
-      }),
+    final bloc = BoardProvider.of(context);
+    final availableMoves = bloc.game.board.availableMoves(bloc.selectedPiece);
+    final size = MediaQuery.of(context).size;
+    final maxWidth = min(size.height * .8, size.width *.9);
+
+    return Container(
+      constraints: BoxConstraints(maxWidth: maxWidth),
+      child: GridView(
+        padding: EdgeInsets.only(left: 8, top: 8, bottom: 8),
+        shrinkWrap: true,
+        gridDelegate:
+            SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 8),
+        children: List.generate(64, (index) {
+          var x = index % 8;
+          var y = (index / 8).floor();
+          var piece = bloc.game.board.getAtPosition(x: x, y: y);
+          var position = Position(x: x, y: y);
+          return Square(
+            piece: piece,
+            isSelected: bloc.selectedPiece == piece && piece != null,
+            isAvailable: availableMoves.contains(position),
+            position: position,
+          );
+        }),
+      ),
     );
   }
 }
@@ -47,11 +56,12 @@ class Square extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var preferences = PreferencesProvider.of(context);
     var boardBloc = BoardProvider.of(context);
     var color;
     if (isSelected) {
       color = Colors.blue;
-    } else if (isAvailable) {
+    } else if (isAvailable && preferences.showMoves) {
       color = Colors.green;
     } else {
       color = position.x % 2 == position.y % 2
@@ -59,7 +69,7 @@ class Square extends StatelessWidget {
           : Colors.brown.shade300;
     }
 
-    var event = boardBloc.gameEvent.value;
+    var event = boardBloc.events.value;
 
     return GestureDetector(
       onTap: () {
@@ -67,8 +77,6 @@ class Square extends StatelessWidget {
         boardBloc.selectSquare(position);
       },
       child: Container(
-        height: boardBloc.squareSize,
-        width: boardBloc.squareSize,
         decoration: BoxDecoration(
           color: color,
           border: Border.all(color: Colors.black),

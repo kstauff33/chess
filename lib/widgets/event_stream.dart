@@ -1,24 +1,33 @@
 import 'package:chess/bloc/board_bloc.dart';
 import 'package:chess/model/events.dart';
+import 'package:chess/widgets/widget_utils.dart';
 import 'package:flutter/material.dart';
 
 class EventStream extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var bloc = BoardProvider.of(context);
-    var events = bloc.events.reversed
+    var events = bloc.game.events.reversed
         .where((event) => event is! SquareSelected)
         .toList();
     return Expanded(
-      child: ListView.builder(
-        shrinkWrap: true,
-        itemCount: events.length,
-        itemBuilder: (context, ndx) {
-          var event = events[ndx];
-          return ListTile(
-            title: Text(event.getDescription()),
-          );
-        },
+      child: Padding(
+        padding: EdgeInsets.all(8),
+        child: ListView.builder(
+          shrinkWrap: true,
+          itemCount: events.length + 1,
+          itemBuilder: (context, ndx) {
+            if (ndx == 0) {
+              return Center(child: titleText('Moves'));
+            }
+            var event = events[ndx - 1];
+            return ListTile(
+              leading: Icon(Icons.arrow_upward),
+              title: Text(event.getDescription()),
+              trailing: Text('#$ndx'),
+            );
+          },
+        ),
       ),
     );
   }

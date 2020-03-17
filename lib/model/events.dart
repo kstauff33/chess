@@ -1,8 +1,8 @@
-import 'package:chess_server/model/piece.dart';
-import 'package:chess_server/model/utils.dart';
 import 'package:meta/meta.dart';
 
 import 'board.dart';
+import 'piece.dart';
+import 'utils.dart';
 
 abstract class GameEvent {
   String getDescription();
@@ -124,5 +124,26 @@ class Stalemate extends GameEvent {
   @override
   String getDescription() {
     return "Stalemate! It's a draw!";
+  }
+}
+
+class NewGame extends GameEvent {
+  @override
+  String getDescription() {
+    return 'New game';
+  }
+}
+
+class AwaitingPlayer extends GameEvent {
+  @override
+  String getDescription() {
+    return 'Waiting for an opponent';
+  }
+}
+
+class PlayerJoined extends GameEvent {
+  @override
+  String getDescription() {
+    return 'A contender has arrived';
   }
 }
