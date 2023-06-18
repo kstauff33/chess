@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:chess/bloc/preference_bloc.dart';
 import 'package:chess/model/events.dart';
 import 'package:chess/widgets/setting_button.dart';
@@ -7,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'bloc/board_bloc.dart';
-import 'model/board.dart';
 import 'model/game.dart';
 import 'widgets/game_widget.dart';
 
@@ -52,20 +49,15 @@ class ChessApp extends StatelessWidget {
 }
 
 class HomeWidget extends StatelessWidget {
-  final Game game;
+  // final Game game;
+  final BoardBloc bloc;
 
   HomeWidget({Key? key})
-      : game = LocalGame(),
+      : bloc = BoardBloc(game: LocalGame()),
         super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    var deviceSize = MediaQuery.of(context).size;
-    var width = deviceSize.width;
-    var height = deviceSize.height - 150;
-    var squareSize = min(width / BOARD_WIDTH, height / BOARD_HEIGHT);
-    var bloc = BoardBloc(squareSize: squareSize, game: game);
-
     return BoardProvider(
       boardBloc: bloc,
       child: Scaffold(

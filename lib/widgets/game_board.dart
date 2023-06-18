@@ -64,7 +64,7 @@ class Square extends StatelessWidget {
     } else if (isAvailable && preferences.showMoves) {
       color = Colors.green;
     } else {
-      color = position!.x! % 2 == position!.y! % 2
+      color = position!.x% 2 == position!.y% 2
           ? Colors.brown.shade200
           : Colors.brown.shade300;
     }

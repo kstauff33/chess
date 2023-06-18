@@ -14,17 +14,28 @@ class GameWidget extends StatelessWidget {
     print('build gamewidget');
     var bloc = BoardProvider.of(context)!;
 
-    bloc.events.where((event) => event is PawnReachedEnd).listen((event) {
+    bloc.registerPawnReplacement((event) {
       showModalBottomSheet(
         context: context,
         builder: (context) {
           return PawnReplacementSelector(
             bloc: bloc,
-            pawn: (event as PawnReachedEnd).piece,
+            pawn: event.piece,
           );
         },
       );
     });
+    // bloc.events.whereType<PawnReachedEnd>().listen((event) {
+    //   showModalBottomSheet(
+    //     context: context,
+    //     builder: (context) {
+    //       return PawnReplacementSelector(
+    //         bloc: bloc,
+    //         pawn: event.piece,
+    //       );
+    //     },
+    //   );
+    // });
 
     var deviceSize = MediaQuery.of(context).size;
     var width = deviceSize.width;

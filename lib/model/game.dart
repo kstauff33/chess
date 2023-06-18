@@ -1,8 +1,5 @@
-import 'package:grpc/grpc.dart';
 import 'package:rxdart/rxdart.dart';
 
-import '../generated/chess.pbgrpc.dart' as proto;
-import '../model/proto_utils.dart';
 import 'board.dart';
 import 'events.dart';
 import 'piece.dart';

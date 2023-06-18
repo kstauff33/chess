@@ -11,7 +11,7 @@ class Position {
   const Position({required this.x, required this.y});
 
   @override
-  int get hashCode => x! + 1 + 10 * (y! + 1);
+  int get hashCode => x+ 1 + 10 * (y+ 1);
 
   @override
   bool operator ==(other) {
@@ -102,7 +102,7 @@ class Board {
     assert((x == null && y == null) || position == null);
     if (position != null) {
       if (positionIsValid(position)) {
-        return _board[position.y!][position.x!];
+        return _board[position.y][position.x];
       }
       return null;
     }
@@ -117,7 +117,7 @@ class Board {
     cache.invalidate();
     assert((x == null && y == null) || position == null);
     if (position != null) {
-      _board[position.y!][position.x!] = piece;
+      _board[position.y][position.x] = piece;
     } else {
       _board[y!][x!] = piece;
     }
@@ -239,10 +239,10 @@ class Board {
 
   /// Check if a position is within the bounds of the board
   bool positionIsValid(Position position) {
-    return position.x! >= 0 &&
-        position.x! < BOARD_WIDTH &&
-        position.y! >= 0 &&
-        position.y! < BOARD_HEIGHT;
+    return position.x>= 0 &&
+        position.x< BOARD_WIDTH &&
+        position.y>= 0 &&
+        position.y< BOARD_HEIGHT;
   }
 
   /// Determine if the piece is theoretically able to move to a given piece

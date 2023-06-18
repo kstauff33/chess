@@ -23,14 +23,18 @@ class BoardProvider extends InheritedWidget {
 }
 
 class BoardBloc {
-  final double squareSize;
   late Game game;
   Piece? selectedPiece;
   Subject<GameEvent> events = PublishSubject<GameEvent>();
   StreamSubscription? subscription;
+  Function(PawnReachedEnd event)? pawnReachedEndCallback;
 
-  BoardBloc({required this.squareSize, required Game game}) {
+  BoardBloc({required Game game}) {
     newGame(game);
+  }
+
+  registerPawnReplacement(Function(PawnReachedEnd event) callback) {
+    pawnReachedEndCallback = callback;
   }
 
   void newGame(Game game) {
@@ -39,6 +43,9 @@ class BoardBloc {
     subscription = game.gameEvent.listen((event) {
       if (event is Undo) {
         selectedPiece = null;
+      }
+      if (event is PawnReachedEnd) {
+        pawnReachedEndCallback?.call(event);
       }
       events.add(event);
     });
