@@ -3,7 +3,7 @@ import 'package:chess/model/piece.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  Board board;
+  late Board board;
   setUp(() async {
     board = Board();
   });
@@ -126,7 +126,7 @@ void main() {
       var moves = [
         Position(x: 0, y: 2),
       ];
-      var pawn = board.getAtPosition(x: 0, y: 1);
+      var pawn = board.getAtPosition(x: 0, y: 1)!;
       (pawn as Pawn).hasMoved = true;
       expect(board.availableMoves(pawn), moves);
     });
@@ -139,7 +139,7 @@ void main() {
         Position(x: 0, y: 2),
         Position(x: 1, y: 2),
       ];
-      var pawn = board.getAtPosition(x: 0, y: 1);
+      var pawn = board.getAtPosition(x: 0, y: 1)!;
       (pawn as Pawn).hasMoved = true;
       expect(board.availableMoves(pawn), moves);
     });

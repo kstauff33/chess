@@ -1,5 +1,4 @@
 import 'package:grpc/grpc.dart';
-import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../generated/chess.pbgrpc.dart' as proto;
@@ -10,16 +9,16 @@ import 'piece.dart';
 import 'utils.dart';
 
 abstract class Game {
-  String id;
-  Board board;
+  String? id;
+  late Board board;
   final List<GameEvent> events = [];
-  final BehaviorSubject<GameEvent> gameEvent = BehaviorSubject<GameEvent>();
+  final Subject<GameEvent> gameEvent = PublishSubject<GameEvent>();
 
   PieceColor turn = PieceColor.WHITE;
 
-  Game({@required this.board, this.id});
+  Game({required this.board, this.id});
 
-  void movePiece(Piece pieceToMove, Position toPosition);
+  void movePiece(Piece? pieceToMove, Position toPosition);
 
   void replacePawn(Pawn pawn, Type replacementType);
 
@@ -28,14 +27,14 @@ abstract class Game {
 
 class LocalGame extends Game {
   @override
-  LocalGame({String id}) : super(board: Board(), id: id) {
+  LocalGame({String? id}) : super(board: Board(), id: id) {
     gameEvent.listen((event) {
       events.add(event);
     });
   }
 
   @override
-  void movePiece(Piece pieceToMove, Position toPosition) {
+  void movePiece(Piece? pieceToMove, Position toPosition) {
     _validateMove(pieceToMove, toPosition);
     var destinationPiece = board.getAtPosition(position: toPosition);
     var fromPosition = board.getPiecePosition(pieceToMove);
@@ -45,7 +44,7 @@ class LocalGame extends Game {
     board.movePiece(pieceToMove, toPosition);
 
     if (destinationPiece != null &&
-        pieceToMove.color != destinationPiece.color) {
+        pieceToMove!.color != destinationPiece.color) {
       gameEvent.add(PieceTaken(
         to: toPosition,
         pieceMoved: pieceToMove,
@@ -60,13 +59,14 @@ class LocalGame extends Game {
       ));
     }
 
-    if (board.isCheckMate(turn)) {
-      gameEvent.add(Checkmate(loser: turn));
-    } else if (board.isStaleMate(turn)) {
-      gameEvent.add(Stalemate());
-    } else if (board.isKingInPeril(turn)) {
-      gameEvent.add(Check(colorInCheck: turn));
-    }
+    // if (board.isCheckMate(turn)) {
+    //   gameEvent.add(Checkmate(loser: turn));
+    // } else if (board.isStaleMate(turn)) {
+    //   gameEvent.add(Stalemate());
+    // } else if (board.isKingInPeril(turn)!) {
+    //   gameEvent.add(Check(colorInCheck: turn));
+    // }
+    determineKingStatus();
 
     if (pieceToMove is Pawn) {
       pieceToMove.hasMoved = true;
@@ -78,12 +78,23 @@ class LocalGame extends Game {
     }
   }
 
+  determineKingStatus() {
+    if (board.isCheckMate(turn)) {
+      gameEvent.add(Checkmate(loser: turn));
+    } else if (board.isStaleMate(turn)) {
+      gameEvent.add(Stalemate());
+    } else if (board.isKingInPeril(turn)!) {
+      gameEvent.add(Check(colorInCheck: turn));
+    }
+  }
+
   @override
   void replacePawn(Pawn pawn, Type replacementType) {
     var position = board.getPiecePosition(pawn);
     var replacement = PieceFactory().pieceOfColor(replacementType, pawn.color);
     board.setAtPosition(piece: replacement, x: position.x, y: position.y);
     gameEvent.add(ReplacementSelected(selectedType: replacementType));
+    determineKingStatus();
   }
 
   @override
@@ -103,14 +114,14 @@ class LocalGame extends Game {
 
     if (move.pieceMoved is Pawn) {
       // reset pawn if back to start position
-      if ((move.pieceMoved.direction == Direction.DOWN && move.from.y == 1) ||
-          (move.pieceMoved.direction == Direction.UP &&
+      if ((move.pieceMoved!.direction == Direction.DOWN && move.from.y == 1) ||
+          (move.pieceMoved!.direction == Direction.UP &&
               move.from.y == BOARD_HEIGHT - 2)) {
         (move.pieceMoved as Pawn).hasMoved = false;
       }
     }
 
-    turn = move.pieceMoved.color;
+    turn = move.pieceMoved!.color;
     gameEvent.add(Undo(move: move));
   }
 
@@ -118,9 +129,8 @@ class LocalGame extends Game {
     gameEvent.close();
   }
 
-  void _validateMove(Piece pieceToMove, Position toPosition) {
+  void _validateMove(Piece? pieceToMove, Position toPosition) {
     if (pieceToMove == null ||
-        toPosition == null ||
         turn != pieceToMove.color ||
         !board.availableMoves(pieceToMove).contains(toPosition)) {
       throw Exception('Invalid move');
@@ -128,61 +138,61 @@ class LocalGame extends Game {
   }
 }
 
-class RemoteGame extends Game {
-  RemoteGame() : stub = proto.GameClient(channel) {
-    board = Board.empty();
-    var responseStream = stub.gameState(proto.JoinGameRequest.create());
-    responseStream.listen(_onResponse);
-  }
+// class RemoteGame extends Game {
+//   RemoteGame({required super.board, super.id}) : stub = proto.GameClient(channel) {
+//     board = Board.empty();
+//     var responseStream = stub.gameState(proto.JoinGameRequest.create());
+//     responseStream.listen(_onResponse);
+//   }
 
-  void _onResponse(proto.GameUpdateResponse response) {
-    board = Board.empty();
-    id = response.gameId;
-    turn = colorFromProto(response.turn);
-    for (var y = 0; y < response.board.rows.length; y++) {
-      var row = response.board.rows[y];
-      for (var x = 0; x < row.squares.length; x++) {
-        if (!row.squares[x].empty) {
-          board.setAtPosition(
-              x: x, y: y, piece: pieceFromProto(row.squares[x].piece));
-        }
-      }
-    }
-    print(board);
-    print('Add event: ${eventFromProto(response.lastEvent)}');
-    gameEvent.add(eventFromProto(response.lastEvent));
-  }
+//   void _onResponse(proto.GameUpdateResponse response) {
+//     board = Board.empty();
+//     id = response.gameId;
+//     turn = colorFromProto(response.turn);
+//     for (var y = 0; y < response.board.rows.length; y++) {
+//       var row = response.board.rows[y];
+//       for (var x = 0; x < row.squares.length; x++) {
+//         if (!row.squares[x].empty) {
+//           board.setAtPosition(
+//               x: x, y: y, piece: pieceFromProto(row.squares[x].piece));
+//         }
+//       }
+//     }
+//     print(board);
+//     print('Add event: ${eventFromProto(response.lastEvent)}');
+//     gameEvent.add(eventFromProto(response.lastEvent));
+//   }
 
-  @override
-  void movePiece(Piece pieceToMove, Position toPosition) {
-    print('move Piece');
-    var position = proto.Position.create()
-      ..x = toPosition.x
-      ..y = toPosition.y;
-    stub.makeMove(proto.MakeMoveRequest.create()
-      ..gameId = id
-      ..piece = pieceToProto(pieceToMove)
-      ..to = position);
-  }
+//   @override
+//   void movePiece(Piece? pieceToMove, Position toPosition) {
+//     print('move Piece');
+//     var position = proto.Position.create()
+//       ..x = toPosition.x!
+//       ..y = toPosition.y!;
+//     stub.makeMove(proto.MakeMoveRequest.create()
+//       ..gameId = id!
+//       ..piece = pieceToProto(pieceToMove)!
+//       ..to = position);
+//   }
 
-  @override
-  void replacePawn(Pawn pawn, Type replacementType) {
-    // TODO: implement replacePawn
-  }
+//   @override
+//   void replacePawn(Pawn pawn, Type replacementType) {
+//     // TODO: implement replacePawn
+//   }
 
-  @override
-  void undo() {
-    // TODO: implement undo
-  }
+//   @override
+//   void undo() {
+//     // TODO: implement undo
+//   }
 
-  static final channel = ClientChannel(
-    '192.168.86.198',
-    port: 50051,
-    options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
-  );
-  final proto.GameClient stub;
-}
+//   static final channel = ClientChannel(
+//     '192.168.86.198',
+//     port: 50051,
+//     options: const ChannelOptions(credentials: ChannelCredentials.insecure()),
+//   );
+//   final proto.GameClient stub;
+// }
 
-class Client {
-  void movePiece(Piece pieceToMove, Position toPosition) {}
-}
+// class Client {
+//   void movePiece(Piece pieceToMove, Position toPosition) {}
+// }

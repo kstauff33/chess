@@ -1,4 +1,3 @@
-import 'package:meta/meta.dart';
 
 import 'board.dart';
 import 'piece.dart';
@@ -9,8 +8,8 @@ abstract class GameEvent {
 }
 
 class SquareSelected extends GameEvent {
-  final Position position;
-  final Piece piece;
+  final Position? position;
+  final Piece? piece;
 
   SquareSelected({this.position, this.piece});
 
@@ -22,8 +21,8 @@ class SquareSelected extends GameEvent {
 
 class SquareDeSelected extends SquareSelected {
   SquareDeSelected({
-    @required Position position,
-    @required Piece piece,
+    required Position position,
+    required Piece? piece,
   }) : super(position: position, piece: piece);
 
   @override
@@ -33,14 +32,14 @@ class SquareDeSelected extends SquareSelected {
 }
 
 class Move extends GameEvent {
-  final Piece pieceMoved;
+  final Piece? pieceMoved;
   final Position from;
   final Position to;
 
   Move({
-    @required this.pieceMoved,
-    @required this.from,
-    @required this.to,
+    required this.pieceMoved,
+    required this.from,
+    required this.to,
   });
 
   @override
@@ -53,10 +52,10 @@ class PieceTaken extends Move {
   final Piece pieceTaken;
 
   PieceTaken({
-    @required to,
-    @required from,
-    @required pieceMoved,
-    @required this.pieceTaken,
+    required to,
+    required from,
+    required pieceMoved,
+    required this.pieceTaken,
   }) : super(pieceMoved: pieceMoved, from: from, to: to);
 
   @override
@@ -68,7 +67,7 @@ class PieceTaken extends Move {
 class PawnReachedEnd extends GameEvent {
   final Pawn piece;
 
-  PawnReachedEnd({@required this.piece});
+  PawnReachedEnd({required this.piece});
 
   @override
   String getDescription() {
@@ -79,7 +78,7 @@ class PawnReachedEnd extends GameEvent {
 class Undo extends GameEvent {
   final Move move;
 
-  Undo({@required this.move});
+  Undo({required this.move});
 
   @override
   String getDescription() {
@@ -90,7 +89,7 @@ class Undo extends GameEvent {
 class ReplacementSelected extends GameEvent {
   final Type selectedType;
 
-  ReplacementSelected({@required this.selectedType});
+  ReplacementSelected({required this.selectedType});
 
   @override
   String getDescription() {
@@ -101,7 +100,7 @@ class ReplacementSelected extends GameEvent {
 class Check extends GameEvent {
   final PieceColor colorInCheck;
 
-  Check({@required this.colorInCheck});
+  Check({required this.colorInCheck});
 
   @override
   String getDescription() {
@@ -112,7 +111,7 @@ class Check extends GameEvent {
 class Checkmate extends GameEvent {
   final PieceColor loser;
 
-  Checkmate({@required this.loser});
+  Checkmate({required this.loser});
 
   @override
   String getDescription() {

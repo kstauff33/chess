@@ -1,4 +1,5 @@
-import 'package:meta/meta.dart';
+import 'package:chess/chess_icon_icons.dart';
+import 'package:flutter/material.dart';
 
 import 'board.dart';
 import 'utils.dart';
@@ -16,10 +17,10 @@ abstract class Piece {
   final PieceType type;
 
   Piece({
-    @required this.id,
-    @required this.direction,
-    @required this.type,
-    @required this.color,
+    required this.id,
+    required this.direction,
+    required this.type,
+    required this.color,
   });
 
   List<Position> availableMoves(Board board);
@@ -39,15 +40,16 @@ abstract class Piece {
   }
 
   String getLetter();
+  IconData getIcon();
 }
 
 class Pawn extends Piece {
   var hasMoved = false;
 
   Pawn({
-    @required String id,
-    @required Direction direction,
-    @required PieceColor color,
+    required String id,
+    required Direction direction,
+    required PieceColor color,
   }) : super(
           id: id,
           direction: direction,
@@ -105,13 +107,16 @@ class Pawn extends Piece {
 
   @override
   String getLetter() => 'P';
+
+  @override
+  IconData getIcon() => ChessIcon.chess_pawn;
 }
 
 class Rook extends Piece {
   Rook({
-    @required String id,
-    @required Direction direction,
-    @required PieceColor color,
+    required String id,
+    required Direction direction,
+    required PieceColor color,
   }) : super(id: id, direction: direction, type: PieceType.ROOK, color: color);
 
   @override
@@ -121,13 +126,16 @@ class Rook extends Piece {
 
   @override
   String getLetter() => 'R';
+
+  @override
+  IconData getIcon() => ChessIcon.chess_rook;
 }
 
 class Knight extends Piece {
   Knight({
-    @required String id,
-    @required Direction direction,
-    @required PieceColor color,
+    required String id,
+    required Direction direction,
+    required PieceColor color,
   }) : super(
             id: id, direction: direction, type: PieceType.KNIGHT, color: color);
 
@@ -186,13 +194,16 @@ class Knight extends Piece {
 
   @override
   String getLetter() => 'K';
+
+  @override
+  IconData getIcon() => ChessIcon.chess_knight;
 }
 
 class Bishop extends Piece {
   Bishop({
-    @required String id,
-    @required Direction direction,
-    @required PieceColor color,
+    required String id,
+    required Direction direction,
+    required PieceColor color,
   }) : super(
             id: id, direction: direction, type: PieceType.BISHOP, color: color);
 
@@ -203,13 +214,16 @@ class Bishop extends Piece {
 
   @override
   String getLetter() => 'B';
+
+  @override
+  IconData getIcon() => ChessIcon.chess_bishop;
 }
 
 class King extends Piece {
   King({
-    @required String id,
-    @required Direction direction,
-    @required PieceColor color,
+    required String id,
+    required Direction direction,
+    required PieceColor color,
   }) : super(id: id, direction: direction, type: PieceType.KING, color: color);
 
   @override
@@ -221,13 +235,16 @@ class King extends Piece {
 
   @override
   String getLetter() => 'G';
+
+  @override
+  IconData getIcon() => ChessIcon.chess_king;
 }
 
 class Queen extends Piece {
   Queen({
-    @required String id,
-    @required Direction direction,
-    @required PieceColor color,
+    required String id,
+    required Direction direction,
+    required PieceColor color,
   }) : super(id: id, direction: direction, type: PieceType.QUEEN, color: color);
 
   @override
@@ -239,6 +256,9 @@ class Queen extends Piece {
 
   @override
   String getLetter() => 'Q';
+
+  @override
+  IconData getIcon() => ChessIcon.chess_queen;
 }
 
 List<Position> _diagonalMoves(Piece piece, Board board, Position position,
@@ -347,7 +367,7 @@ class PieceFactory {
 
   factory PieceFactory() => _instance;
 
-  List<List<Piece>> generateBoard() {
+  List<List<Piece?>> generateBoard() {
     return [
       [
         pieceOfColor(Rook, PieceColor.BLACK),
@@ -381,7 +401,7 @@ class PieceFactory {
   Direction whiteDirection = Direction.UP;
   Direction blackDirection = Direction.DOWN;
 
-  Piece pieceOfColor(Type pieceType, PieceColor color, {String id}) {
+  Piece pieceOfColor(Type pieceType, PieceColor color, {String? id}) {
     var direction = color == PieceColor.WHITE ? whiteDirection : blackDirection;
     var pieceId = id ?? (_counter++).toString();
     switch (pieceType) {

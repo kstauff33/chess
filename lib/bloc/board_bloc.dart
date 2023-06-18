@@ -1,40 +1,42 @@
+import 'dart:async';
+
 import 'package:chess/model/events.dart';
 import 'package:chess/model/game.dart';
 import 'package:chess/model/piece.dart';
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../model/board.dart';
 
 class BoardProvider extends InheritedWidget {
-  final BoardBloc boardBloc;
+  final BoardBloc? boardBloc;
 
-  BoardProvider({this.boardBloc, Widget child}) : super(child: child);
+  BoardProvider({this.boardBloc, required Widget child}) : super(child: child);
 
   @override
   bool updateShouldNotify(InheritedWidget oldWidget) {
     return true;
   }
 
-  static BoardBloc of(BuildContext context) =>
-      context.findAncestorWidgetOfExactType<BoardProvider>().boardBloc;
+  static BoardBloc? of(BuildContext context) =>
+      context.findAncestorWidgetOfExactType<BoardProvider>()!.boardBloc;
 }
 
 class BoardBloc {
   final double squareSize;
-  Game game;
-  Piece selectedPiece;
-  BehaviorSubject<GameEvent> events = BehaviorSubject<GameEvent>();
+  late Game game;
+  Piece? selectedPiece;
+  Subject<GameEvent> events = PublishSubject<GameEvent>();
+  StreamSubscription? subscription;
 
-  BoardBloc({@required this.squareSize, Game game}) {
+  BoardBloc({required this.squareSize, required Game game}) {
     newGame(game);
   }
 
   void newGame(Game game) {
     this.game = game;
     selectedPiece = null;
-    game.gameEvent.listen((event) {
+    subscription = game.gameEvent.listen((event) {
       if (event is Undo) {
         selectedPiece = null;
       }
@@ -55,7 +57,7 @@ class BoardBloc {
     if ((maybePiece == null || maybePiece.color != game.turn) &&
         selectedPiece == null) return;
 
-    if (selectedPiece == null || selectedPiece.color == maybePiece?.color) {
+    if (selectedPiece == null || selectedPiece!.color == maybePiece?.color) {
       selectedPiece = maybePiece;
       game.gameEvent.add(SquareSelected(piece: maybePiece, position: position));
     } else if (selectedPiece == maybePiece) {

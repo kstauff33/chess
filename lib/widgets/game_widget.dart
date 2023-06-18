@@ -11,7 +11,8 @@ import 'game_board.dart';
 class GameWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var bloc = BoardProvider.of(context);
+    print('build gamewidget');
+    var bloc = BoardProvider.of(context)!;
 
     bloc.events.where((event) => event is PawnReachedEnd).listen((event) {
       showModalBottomSheet(
@@ -29,7 +30,7 @@ class GameWidget extends StatelessWidget {
     var width = deviceSize.width;
     var height = deviceSize.height - 150;
 
-    return StreamBuilder(
+    return StreamBuilder<GameEvent>(
       stream: bloc.events,
       builder: (context, snapshot) {
         final moveTitle = Padding(
@@ -72,7 +73,7 @@ class GameWidget extends StatelessWidget {
     );
   }
 
-  String getTitle(BoardBloc bloc, GameEvent event) {
+  String getTitle(BoardBloc bloc, GameEvent? event) {
     if (event is Checkmate) {
       return 'Game Over!';
     }

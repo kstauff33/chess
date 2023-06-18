@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 class EventStream extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var bloc = BoardProvider.of(context);
+    var bloc = BoardProvider.of(context)!;
     var events = bloc.game.events.reversed
         .where((event) => event is! SquareSelected)
         .toList();
@@ -14,7 +14,7 @@ class EventStream extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.all(8),
         child: ListView.builder(
-          shrinkWrap: true,
+          shrinkWrap: false,
           itemCount: events.length + 1,
           itemBuilder: (context, ndx) {
             if (ndx == 0) {

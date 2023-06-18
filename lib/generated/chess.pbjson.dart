@@ -2,9 +2,13 @@
 //  Generated code. Do not modify.
 //  source: chess.proto
 //
-// @dart = 2.3
-// ignore_for_file: camel_case_types,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type
+// @dart = 2.12
+// ignore_for_file: annotate_overrides,camel_case_types,constant_identifier_names,deprecated_member_use_from_same_package,directives_ordering,library_prefixes,non_constant_identifier_names,prefer_final_fields,return_of_invalid_type,unnecessary_const,unnecessary_import,unnecessary_this,unused_import,unused_shown_name
 
+import 'dart:core' as $core;
+import 'dart:convert' as $convert;
+import 'dart:typed_data' as $typed_data;
+@$core.Deprecated('Use eventDescriptor instead')
 const Event$json = const {
   '1': 'Event',
   '2': const [
@@ -22,6 +26,9 @@ const Event$json = const {
   ],
 };
 
+/// Descriptor for `Event`. Decode as a `google.protobuf.EnumDescriptorProto`.
+final $typed_data.Uint8List eventDescriptor = $convert.base64Decode('CgVFdmVudBINCglTdGFsZW1hdGUQABIICgRNb3ZlEAESDgoKUGllY2VUYWtlbhACEhIKDlBhd25SZWFjaGVkRW5kEAMSCAoEVW5kbxAEEhcKE1JlcGxhY2VtZW50U2VsZWN0ZWQQBRIJCgVDaGVjaxAGEg0KCUNoZWNrbWF0ZRAHEgsKB05ld0dhbWUQCBIQCgxQbGF5ZXJKb2luZWQQCRISCg5Bd2FpdGluZ1BsYXllchAK');
+@$core.Deprecated('Use boardDescriptor instead')
 const Board$json = const {
   '1': 'Board',
   '2': const [
@@ -29,6 +36,9 @@ const Board$json = const {
   ],
 };
 
+/// Descriptor for `Board`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List boardDescriptor = $convert.base64Decode('CgVCb2FyZBIYCgRyb3dzGAEgAygLMgQuUm93UgRyb3dz');
+@$core.Deprecated('Use rowDescriptor instead')
 const Row$json = const {
   '1': 'Row',
   '2': const [
@@ -36,6 +46,9 @@ const Row$json = const {
   ],
 };
 
+/// Descriptor for `Row`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List rowDescriptor = $convert.base64Decode('CgNSb3cSIQoHc3F1YXJlcxgBIAMoCzIHLlNxdWFyZVIHc3F1YXJlcw==');
+@$core.Deprecated('Use squareDescriptor instead')
 const Square$json = const {
   '1': 'Square',
   '2': const [
@@ -44,6 +57,9 @@ const Square$json = const {
   ],
 };
 
+/// Descriptor for `Square`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List squareDescriptor = $convert.base64Decode('CgZTcXVhcmUSHAoFcGllY2UYASABKAsyBi5QaWVjZVIFcGllY2USFAoFZW1wdHkYAiABKAhSBWVtcHR5');
+@$core.Deprecated('Use pieceDescriptor instead')
 const Piece$json = const {
   '1': 'Piece',
   '2': const [
@@ -55,6 +71,7 @@ const Piece$json = const {
   '4': const [Piece_Type$json, Piece_Color$json, Piece_Direction$json],
 };
 
+@$core.Deprecated('Use pieceDescriptor instead')
 const Piece_Type$json = const {
   '1': 'Type',
   '2': const [
@@ -67,6 +84,7 @@ const Piece_Type$json = const {
   ],
 };
 
+@$core.Deprecated('Use pieceDescriptor instead')
 const Piece_Color$json = const {
   '1': 'Color',
   '2': const [
@@ -75,6 +93,7 @@ const Piece_Color$json = const {
   ],
 };
 
+@$core.Deprecated('Use pieceDescriptor instead')
 const Piece_Direction$json = const {
   '1': 'Direction',
   '2': const [
@@ -83,6 +102,9 @@ const Piece_Direction$json = const {
   ],
 };
 
+/// Descriptor for `Piece`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List pieceDescriptor = $convert.base64Decode('CgVQaWVjZRIfCgR0eXBlGAEgASgOMgsuUGllY2UuVHlwZVIEdHlwZRIiCgVjb2xvchgCIAEoDjIMLlBpZWNlLkNvbG9yUgVjb2xvchIuCglkaXJlY3Rpb24YAyABKA4yEC5QaWVjZS5EaXJlY3Rpb25SCWRpcmVjdGlvbhIOCgJpZBgEIAEoCVICaWQiRwoEVHlwZRIICgRLSU5HEAASCAoEUEFXThABEggKBFJPT0sQAhIKCgZLTklHSFQQAxIKCgZCSVNIT1AQBBIJCgVRVUVFThAFIh0KBUNvbG9yEgkKBUJMQUNLEAASCQoFV0hJVEUQASIdCglEaXJlY3Rpb24SCAoERE9XThAAEgYKAlVQEAE=');
+@$core.Deprecated('Use positionDescriptor instead')
 const Position$json = const {
   '1': 'Position',
   '2': const [
@@ -91,6 +113,9 @@ const Position$json = const {
   ],
 };
 
+/// Descriptor for `Position`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List positionDescriptor = $convert.base64Decode('CghQb3NpdGlvbhIMCgF4GAEgASgFUgF4EgwKAXkYAiABKAVSAXk=');
+@$core.Deprecated('Use joinGameRequestDescriptor instead')
 const JoinGameRequest$json = const {
   '1': 'JoinGameRequest',
   '2': const [
@@ -98,6 +123,9 @@ const JoinGameRequest$json = const {
   ],
 };
 
+/// Descriptor for `JoinGameRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List joinGameRequestDescriptor = $convert.base64Decode('Cg9Kb2luR2FtZVJlcXVlc3QSFgoGZ2FtZUlkGAEgASgJUgZnYW1lSWQ=');
+@$core.Deprecated('Use gameUpdateResponseDescriptor instead')
 const GameUpdateResponse$json = const {
   '1': 'GameUpdateResponse',
   '2': const [
@@ -109,6 +137,9 @@ const GameUpdateResponse$json = const {
   ],
 };
 
+/// Descriptor for `GameUpdateResponse`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List gameUpdateResponseDescriptor = $convert.base64Decode('ChJHYW1lVXBkYXRlUmVzcG9uc2USHAoFYm9hcmQYASABKAsyBi5Cb2FyZFIFYm9hcmQSJAoJbGFzdEV2ZW50GAIgASgOMgYuRXZlbnRSCWxhc3RFdmVudBIWCgZnYW1lSWQYAyABKAlSBmdhbWVJZBIgCgR0dXJuGAQgASgOMgwuUGllY2UuQ29sb3JSBHR1cm4SKAoLdGFrZW5QaWVjZXMYBSADKAsyBi5QaWVjZVILdGFrZW5QaWVjZXM=');
+@$core.Deprecated('Use makeMoveRequestDescriptor instead')
 const MakeMoveRequest$json = const {
   '1': 'MakeMoveRequest',
   '2': const [
@@ -119,3 +150,5 @@ const MakeMoveRequest$json = const {
   ],
 };
 
+/// Descriptor for `MakeMoveRequest`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List makeMoveRequestDescriptor = $convert.base64Decode('Cg9NYWtlTW92ZVJlcXVlc3QSFgoGZ2FtZUlkGAQgASgJUgZnYW1lSWQSHQoEZnJvbRgBIAEoCzIJLlBvc2l0aW9uUgRmcm9tEhkKAnRvGAIgASgLMgkuUG9zaXRpb25SAnRvEhwKBXBpZWNlGAMgASgLMgYuUGllY2VSBXBpZWNl');

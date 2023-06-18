@@ -2,8 +2,8 @@
 //  Generated code. Do not modify.
 //  source: chess.proto
 //
-// @dart = 2.3
-// ignore_for_file: camel_case_types,non_constant_identifier_names,library_prefixes,unused_import,unused_shown_name,return_of_invalid_type
+// @dart = 2.12
+// ignore_for_file: annotate_overrides,camel_case_types,constant_identifier_names,directives_ordering,library_prefixes,non_constant_identifier_names,prefer_final_fields,return_of_invalid_type,unnecessary_const,unnecessary_import,unnecessary_this,unused_import,unused_shown_name
 
 import 'dart:async' as $async;
 
@@ -27,23 +27,23 @@ class GameClient extends $grpc.Client {
           ($core.List<$core.int> value) =>
               $0.GameUpdateResponse.fromBuffer(value));
 
-  GameClient($grpc.ClientChannel channel, {$grpc.CallOptions options})
-      : super(channel, options: options);
+  GameClient($grpc.ClientChannel channel,
+      {$grpc.CallOptions? options,
+      $core.Iterable<$grpc.ClientInterceptor>? interceptors})
+      : super(channel, options: options, interceptors: interceptors);
 
   $grpc.ResponseStream<$0.GameUpdateResponse> gameState(
       $0.JoinGameRequest request,
-      {$grpc.CallOptions options}) {
-    final call = $createCall(_$gameState, $async.Stream.fromIterable([request]),
+      {$grpc.CallOptions? options}) {
+    return $createStreamingCall(
+        _$gameState, $async.Stream.fromIterable([request]),
         options: options);
-    return $grpc.ResponseStream(call);
   }
 
   $grpc.ResponseFuture<$0.GameUpdateResponse> makeMove(
       $0.MakeMoveRequest request,
-      {$grpc.CallOptions options}) {
-    final call = $createCall(_$makeMove, $async.Stream.fromIterable([request]),
-        options: options);
-    return $grpc.ResponseFuture(call);
+      {$grpc.CallOptions? options}) {
+    return $createUnaryCall(_$makeMove, request, options: options);
   }
 }
 

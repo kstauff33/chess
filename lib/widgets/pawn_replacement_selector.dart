@@ -8,9 +8,9 @@ class PawnReplacementSelector extends StatelessWidget {
   final BoardBloc bloc;
 
   const PawnReplacementSelector({
-    Key key,
-    @required this.pawn,
-    @required this.bloc,
+    Key? key,
+    required this.pawn,
+    required this.bloc,
   }) : super(key: key);
 
   @override

@@ -11,10 +11,10 @@ import '../model/board.dart';
 class BoardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final bloc = BoardProvider.of(context);
+    final bloc = BoardProvider.of(context)!;
     final availableMoves = bloc.game.board.availableMoves(bloc.selectedPiece);
     final size = MediaQuery.of(context).size;
-    final maxWidth = min(size.height * .8, size.width *.9);
+    final maxWidth = min(size.height * .8, size.width * .9);
 
     return Container(
       constraints: BoxConstraints(maxWidth: maxWidth),
@@ -41,13 +41,13 @@ class BoardWidget extends StatelessWidget {
 }
 
 class Square extends StatelessWidget {
-  final Piece piece;
-  final Position position;
+  final Piece? piece;
+  final Position? position;
   final isSelected;
   final isAvailable;
 
   const Square({
-    Key key,
+    Key? key,
     this.piece,
     this.position,
     this.isSelected = false,
@@ -57,24 +57,24 @@ class Square extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var preferences = PreferencesProvider.of(context);
-    var boardBloc = BoardProvider.of(context);
+    var boardBloc = BoardProvider.of(context)!;
     var color;
     if (isSelected) {
       color = Colors.blue;
     } else if (isAvailable && preferences.showMoves) {
       color = Colors.green;
     } else {
-      color = position.x % 2 == position.y % 2
+      color = position!.x! % 2 == position!.y! % 2
           ? Colors.brown.shade200
           : Colors.brown.shade300;
     }
 
-    var event = boardBloc.events.value;
+    var event = boardBloc.game.events.lastOrNull;
 
     return GestureDetector(
       onTap: () {
         if (event is Checkmate || event is Stalemate) return;
-        boardBloc.selectSquare(position);
+        boardBloc.selectSquare(position!);
       },
       child: Container(
         decoration: BoxDecoration(
@@ -88,7 +88,7 @@ class Square extends StatelessWidget {
 
   Widget getPieceRepresentation() {
     if (piece == null) return Container();
-    switch (piece.type) {
+    switch (piece!.type) {
       case PieceType.PAWN:
         break;
       case PieceType.ROOK:
@@ -102,12 +102,9 @@ class Square extends StatelessWidget {
       case PieceType.KING:
         break;
     }
-    return Text(
-      piece.getLetter(),
-      style: TextStyle(
-        fontSize: 32,
-        color: piece.color == PieceColor.BLACK ? Colors.black : Colors.white,
-      ),
+    return Icon(
+      piece!.getIcon(),
+      color: piece!.color == PieceColor.BLACK ? Colors.black : Colors.white,
     );
   }
 }
